@@ -1,0 +1,111 @@
+<!-- local javascript -->
+<!DOCTYPE HTML5>
+
+<html>
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="viewport" content = "width = device-width, initial-scale = 1.0, user-scalable = no, minimum-scale = 1, maximum-scale = 1" />
+
+        <style>
+			body{
+				padding:10px;
+				font-size:larger;
+				font-family:Arial;
+			}
+			button{
+				margin:10px;
+				font-size:larger;
+				color:white;
+				border:none;
+				background:#666;
+				padding:5px;
+			}
+			canvas{
+				border:1px solid lightblue;
+				display:block;
+			}
+			textarea{
+				display:block;
+			}
+		</style>
+        
+        <script src="lib/createjs/easeljs-0.7.1.min.js"></script>
+        <script src="lib/jquery-1.9.1.js"></script>
+        <script src="lib/underscore-min.js"></script>
+        
+        <title>Paint API demo</title>
+
+    </head>
+
+    <body>
+		<p>Canvas is 420x420, doomlord is 162x121. Scale factor should be 2.59, dx = 0, dy = 53.3. Scaled size is 420x313</p>
+		<p>Canvas is 420x420, sqr is 210x105. Scale factor should be 2, dx = 0, dy = 105. Scaled size is 420x210</p>
+        <button id="load1">Load doomlord into canvas</button>
+		<button id="load2">Load sqr into canvas</button>
+		<image id="doom" src="doomlord.png"/>
+		<image id="sqr" src="sqr.png"/>
+		<canvas id="demoCanvas" width="420" height="420"></canvas>
+		<script>
+			var stage = new createjs.Stage("demoCanvas");
+			var drawingCanvas = new createjs.Shape();
+			stage.addChild(drawingCanvas);
+			var onOk = function(data){
+				$("body").append("<textarea rows='16' cols='72'>" + JSON.stringify(data) + "</textarea>");
+			};
+			var loadDoom = function(){
+				loadImage(document.getElementById("doom"));
+			};
+			var loadSqr = function(){
+				loadImage(document.getElementById("sqr"));
+			};
+			var loadImage = function(image){
+				console.log("image size", image.width, image.height);
+				var matrix = new createjs.Matrix2D();
+				var dx = 0;
+				var dy = 0;
+				var sx = 420 / image.width;
+				var sy = 420 / image.height;
+				console.log(sx, sy);
+				if(sx < sy) {
+					sy = sx;
+					dx = 0;
+					dy = (420 - sy*image.height)*0.5;
+				}
+				else {
+					sx = sy
+					dx = (420 - sx*image.width)*0.5;
+					dy = 0;
+				}
+				matrix.translate(dx, dy);
+				matrix.scale(sx, sy);
+				newW = image.width * sx;
+				newH = image.height * sy;
+				
+				var fillX = dx;
+				var fillY = dy;
+				var fillW = newW;
+				var fillH = newH*sy;
+					
+				drawingCanvas.graphics.beginBitmapFill(image, "no-repeat", matrix).drawRect(fillX, fillY, fillW, fillH).endFill();
+				stage.update();
+				
+				$("body").append("<p>The image size was wxh = " + image.width + ", " + image.height + "</p>");	
+				$("body").append("<p>I used sx, sy = " + sx + "," + sy + " and dx, dy " + dx + "," + dy + "</p>");	
+				$("body").append("<p>That makes the image " + newW + "," + newH + "</p>");	
+				$("body").append("<p>I filled the region x,y,w,h " + fillX + "," + fillY + "," + fillW + "," + fillH + "</p>");
+				$("body").append("<p><br/></p>");
+				
+			};
+			$("#load1").click(loadDoom);
+			$("#load2").click(loadSqr);
+		</script>
+		
+	
+    </body>
+
+</html>
+
+
